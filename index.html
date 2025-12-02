@@ -623,27 +623,72 @@ ${fuentes.map((f, i) => `${f.nombre}: ${puntajes[i].toFixed(1)}/10`).join('\n')}
 
 PERFIL ENERGÉTICO: ${determinarPerfilEnergético(puntajes)}
 
-POR FAVOR PROPORCIONA UN ANÁLISIS QUE INCLUYA:
-
-1. DIAGNÓSTICO GENERAL:
-   - Estado general de energía
-   - Fortaleza principal
-   - Área más crítica
-
-2. RECOMENDACIONES PRÁCTICAS (2-3 acciones concretas):
-   - Para esta semana
-   - Enfocadas en las áreas más bajas
-   - Realistas y alcanzables
-
-3. CONSEJO RÁPIDO PARA HOY:
-   - Una sola acción pequeña
-   - Que pueda hacer inmediatamente
-
-4. FRASE MOTIVACIONAL:
-   - Breve e inspiradora
-   - Relacionada con su perfil
-
-Formato: Español claro, práctico, sin tecnicismos. Máximo 1500 palabras. Usa emojis relevantes.`;
+ 🔍 **ANÁLISIS DETALLADO REQUERIDO:**
+    
+    1. **DIAGNÓSTICO INTEGRAL (3-4 párrafos):**
+       - Interpretación de la puntuación global en contexto
+       - Análisis del patrón energético (¿es equilibrado, polarizado, consistente?)
+       - Relación entre áreas altas y bajas (¿se compensan o se contradicen?)
+       - Implicaciones para la vida diaria y bienestar general
+    
+    2. **ÁREAS CRÍTICAS (enfócate en las 2-3 más bajas):**
+       ${areasBajas.slice(0, 3).map(area => `
+       • **${area.nombre}** (${area.puntaje.toFixed(1)}/10):
+         - ¿Por qué esta área está tan baja? Posibles causas profundas
+         - Cómo afecta directamente a las otras áreas de energía
+         - Síntomas específicos que podría estar experimentando
+         - Ejemplos concretos de cómo se manifiesta en el día a día`).join('')}
+    
+    3. **FORTALEZAS ENERGÉTICAS (destaca las 2-3 más altas):**
+       ${areasAltas.slice(0, 3).map(area => `
+       • **${area.nombre}** (${area.puntaje.toFixed(1)}/10):
+         - Cómo puede usar esta fortaleza para compensar áreas bajas
+         - Estrategias para mantener y potenciar esta área
+         - Cómo compartir esta energía con otros`).join('')}
+    
+    4. **PLAN DE ACCIÓN PERSONALIZADO (concreto y realista):**
+       **PRIMERA SEMANA:**
+       - Día 1-2: Acción pequeña para el área más crítica (ej: respiración consciente 3x al día)
+       - Día 3-4: Hábito para fortalecer área más alta (ej: aplicar gratitud en momentos específicos)
+       - Día 5-7: Integración de ambas energías
+    
+       **PRIMER MES:**
+       - Objetivo principal
+       - Métricas de seguimiento (¿cómo sabrá que está mejorando?)
+       - Señales de alerta (¿cuándo debe ajustar el plan?)
+    
+    5. **CONEXIONES SISTÉMICAS:**
+       - Cómo el área más baja afecta específicamente al área más alta
+       - Sinergias naturales que podría estar desaprovechando
+       - Circuitos energéticos que necesita fortalecer
+    
+    6. **RECOMENDACIONES ESPECÍFICAS SEGÚN PERFIL:**
+       - Para ${perfilDetallado.perfil}: 
+         * Rutina matutina ideal
+         * Alimentos que potencien sus áreas débiles
+         * Tipo de ejercicio más beneficioso
+         * Estrategias para momentos de baja energía
+    
+    7. **METÁFORA ENERGÉTICA PERSONALIZADA:**
+       - Una metáfora que represente su estado actual (ej: "Eres como un río con piedras que bloquean el flujo")
+       - Cómo transformar esa metáfora en los próximos meses
+    
+    8. **MENSAJE DE COACHING FINAL:**
+       - Un insight único basado en sus datos
+       - Un recordatorio compasivo
+       - Una pregunta poderosa para reflexionar esta semana
+    
+    🎨 **ESTILO Y TONO:**
+    - Profesional pero cálido, como un mentor experimentado
+    - Concreto y práctico, no teórico
+    - Usa analogías y metáforas relacionadas con energía
+    - Incluye 1-2 preguntas reflexivas
+    - Español latinoamericano, natural y conversacional
+    - Máximo 800 palabras, bien estructurado
+    
+    💫 **FORMATO DE SALIDA:**
+    Usa emojis relevantes, negritas para títulos, y viñetas para listas.
+    Sección por sección, claro y fácil de seguir.`;
 
     return prompt;
 }
