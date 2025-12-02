@@ -614,6 +614,37 @@ async function analizarConGemini() {
 }
 
 function crearPromptGemini(puntajes, puntuacionFinal) {
+    // 1. CALCULAR áreas bajas y altas DENTRO de esta función
+    const areasBajas = [];
+    const areasAltas = [];
+    
+    fuentes.forEach((fuente, i) => {
+        const puntaje = puntajes[i];
+        const nombreSimple = fuente.nombre.replace(/[^a-zA-Z\s]/g, '').trim();
+        
+        if (puntaje <= 4) {
+            areasBajas.push({nombre: nombreSimple, puntaje, preguntas: fuente.preguntas});
+        } else if (puntaje >= 8) {
+            areasAltas.push({nombre: nombreSimple, puntaje});
+        }
+    });
+    
+    // Ordenar de menor a mayor
+    areasBajas.sort((a, b) => a.puntaje - b.puntaje);
+    areasAltas.sort((a, b) => b.puntaje - a.puntaje);
+    
+    // 2. Determinar perfil (sustituye perfilDetallado)
+    const promedio = puntajes.reduce((a, b) => a + b) / puntajes.length;
+    const bajas = puntajes.filter(p => p < 5).length;
+    
+    let perfilTexto = '';
+    if (promedio >= 8 && bajas <= 1) perfilTexto = 'ENERGÍA ÓPTIMA ⭐';
+    else if (promedio >= 7) perfilTexto = 'ENERGÍA ALTA 🔋';
+    else if (promedio >= 5) perfilTexto = 'ENERGÍA MEDIA ⚖️';
+    else if (promedio >= 3) perfilTexto = 'ENERGÍA BAJA 🔻';
+    else perfilTexto = 'ENERGÍA CRÍTICA 🚨';
+    
+    // 3. Construir el prompt CORREGIDO
     let prompt = `Eres un coach experto en energía vital y bienestar integral. Analiza estos resultados de una encuesta de energía:
 
 PUNTUACIÓN TOTAL: ${puntuacionFinal}/10
@@ -621,74 +652,97 @@ PUNTUACIÓN TOTAL: ${puntuacionFinal}/10
 RESULTADOS DETALLADOS:
 ${fuentes.map((f, i) => `${f.nombre}: ${puntajes[i].toFixed(1)}/10`).join('\n')}
 
-PERFIL ENERGÉTICO: ${determinarPerfilEnergético(puntajes)}
+PERFIL ENERGÉTICO: ${perfilTexto}
 
- 🔍 **ANÁLISIS DETALLADO REQUERIDO:**
+🔍 **ANÁLISIS DETALLADO REQUERIDO:**
+
+1. **DIAGNÓSTICO INTEGRAL (3-4 párrafos):**
+   - Interpretación de la puntuación global en contexto
+   - Análisis del patrón energético (¿es equilibrado, polarizado, consistente?)
+   - Relación entre áreas altas y bajas (¿se compensan o se contradicen?)
+   - Implicaciones para la vida diaria y bienestar general
+
+2. **ÁREAS CRÍTICAS (enfócate en las 2-3 más bajas):`
     
-    1. **DIAGNÓSTICO INTEGRAL (3-4 párrafos):**
-       - Interpretación de la puntuación global en contexto
-       - Análisis del patrón energético (¿es equilibrado, polarizado, consistente?)
-       - Relación entre áreas altas y bajas (¿se compensan o se contradicen?)
-       - Implicaciones para la vida diaria y bienestar general
+    // Añadir áreas bajas solo si existen
+    if (areasBajas.length > 0) {
+        prompt += `
+${areasBajas.slice(0, 3).map(area => `   • **${area.nombre}** (${area.puntaje.toFixed(1)}/10):
+     - ¿Por qué esta área está tan baja? Posibles causas profundas
+     - Cómo afecta directamente a las otras áreas de energía
+     - Síntomas específicos que podría estar experimentando
+     - Ejemplos concretos de cómo se manifiesta en el día a día`).join('')}`;
+    } else {
+        prompt += `
+   ✅ No se identificaron áreas críticas (todo está por encima de 4/10)`;
+    }
     
-    2. **ÁREAS CRÍTICAS (enfócate en las 2-3 más bajas):**
-       ${areasBajas.slice(0, 3).map(area => `
-       • **${area.nombre}** (${area.puntaje.toFixed(1)}/10):
-         - ¿Por qué esta área está tan baja? Posibles causas profundas
-         - Cómo afecta directamente a las otras áreas de energía
-         - Síntomas específicos que podría estar experimentando
-         - Ejemplos concretos de cómo se manifiesta en el día a día`).join('')}
+    prompt += `
+
+3. **FORTALEZAS ENERGÉTICAS (destaca las 2-3 más altas):`
     
-    3. **FORTALEZAS ENERGÉTICAS (destaca las 2-3 más altas):**
-       ${areasAltas.slice(0, 3).map(area => `
-       • **${area.nombre}** (${area.puntaje.toFixed(1)}/10):
-         - Cómo puede usar esta fortaleza para compensar áreas bajas
-         - Estrategias para mantener y potenciar esta área
-         - Cómo compartir esta energía con otros`).join('')}
+    if (areasAltas.length > 0) {
+        prompt += `
+${areasAltas.slice(0, 3).map(area => `   • **${area.nombre}** (${area.puntaje.toFixed(1)}/10):
+     - Cómo puede usar esta fortaleza para compensar áreas bajas
+     - Estrategias para mantener y potenciar esta área
+     - Cómo compartir esta energía con otros`).join('')}`;
+    } else {
+        prompt += `
+   📈 Todas las áreas tienen espacio para mejorar (ninguna supera 8/10)`;
+    }
     
-    4. **PLAN DE ACCIÓN PERSONALIZADO (concreto y realista):**
-       **PRIMERA SEMANA:**
-       - Día 1-2: Acción pequeña para el área más crítica (ej: respiración consciente 3x al día)
-       - Día 3-4: Hábito para fortalecer área más alta (ej: aplicar gratitud en momentos específicos)
-       - Día 5-7: Integración de ambas energías
+    prompt += `
+
+4. **PLAN DE ACCIÓN PERSONALIZADO (concreto y realista):**
+   **PRIMERA SEMANA:**
+   - Día 1-2: Acción pequeña para el área más crítica ${areasBajas.length > 0 ? `(${areasBajas[0].nombre})` : '(elegir una área a mejorar)'}
+   - Día 3-4: Hábito para fortalecer área más alta ${areasAltas.length > 0 ? `(${areasAltas[0].nombre})` : '(elegir tu mejor área)'}
+   - Día 5-7: Integración de ambas energías
+
+   **PRIMER MES:**
+   - Objetivo principal basado en tu perfil ${perfilTexto}
+   - Métricas de seguimiento (¿cómo sabrá que está mejorando?)
+   - Señales de alerta (¿cuándo debe ajustar el plan?)
+
+5. **CONEXIONES SISTÉMICAS:`
     
-       **PRIMER MES:**
-       - Objetivo principal
-       - Métricas de seguimiento (¿cómo sabrá que está mejorando?)
-       - Señales de alerta (¿cuándo debe ajustar el plan?)
+    if (areasBajas.length > 0 && areasAltas.length > 0) {
+        prompt += `
+   - Cómo ${areasBajas[0].nombre} (área más baja) afecta específicamente a ${areasAltas[0].nombre} (área más alta)`;
+    }
     
-    5. **CONEXIONES SISTÉMICAS:**
-       - Cómo el área más baja afecta específicamente al área más alta
-       - Sinergias naturales que podría estar desaprovechando
-       - Circuitos energéticos que necesita fortalecer
-    
-    6. **RECOMENDACIONES ESPECÍFICAS SEGÚN PERFIL:**
-       - Para ${perfilDetallado.perfil}: 
-         * Rutina matutina ideal
-         * Alimentos que potencien sus áreas débiles
-         * Tipo de ejercicio más beneficioso
-         * Estrategias para momentos de baja energía
-    
-    7. **METÁFORA ENERGÉTICA PERSONALIZADA:**
-       - Una metáfora que represente su estado actual (ej: "Eres como un río con piedras que bloquean el flujo")
-       - Cómo transformar esa metáfora en los próximos meses
-    
-    8. **MENSAJE DE COACHING FINAL:**
-       - Un insight único basado en sus datos
-       - Un recordatorio compasivo
-       - Una pregunta poderosa para reflexionar esta semana
-    
-    🎨 **ESTILO Y TONO:**
-    - Profesional pero cálido, como un mentor experimentado
-    - Concreto y práctico, no teórico
-    - Usa analogías y metáforas relacionadas con energía
-    - Incluye 1-2 preguntas reflexivas
-    - Español latinoamericano, natural y conversacional
-    - Máximo 800 palabras, bien estructurado
-    
-    💫 **FORMATO DE SALIDA:**
-    Usa emojis relevantes, negritas para títulos, y viñetas para listas.
-    Sección por sección, claro y fácil de seguir.`;
+    prompt += `
+   - Sinergias naturales que podría estar desaprovechando
+   - Circuitos energéticos que necesita fortalecer
+
+6. **RECOMENDACIONES ESPECÍFICAS SEGÚN PERFIL:**
+   - Para ${perfilTexto}: 
+     * Rutina matutina ideal
+     * Alimentos que potencien sus áreas débiles
+     * Tipo de ejercicio más beneficioso
+     * Estrategias para momentos de baja energía
+
+7. **METÁFORA ENERGÉTICA PERSONALIZADA:**
+   - Una metáfora que represente su estado actual
+   - Cómo transformar esa metáfora en los próximos meses
+
+8. **MENSAJE DE COACHING FINAL:**
+   - Un insight único basado en sus datos
+   - Un recordatorio compasivo
+   - Una pregunta poderosa para reflexionar esta semana
+
+🎨 **ESTILO Y TONO:**
+- Profesional pero cálido, como un mentor experimentado
+- Concreto y práctico, no teórico
+- Usa analogías y metáforas relacionadas con energía
+- Incluye 1-2 preguntas reflexivas
+- Español latinoamericano, natural y conversacional
+- Máximo 800 palabras, bien estructurado
+
+💫 **FORMATO DE SALIDA:**
+Usa emojis relevantes, negritas para títulos, y viñetas para listas.
+Sección por sección, claro y fácil de seguir.`;
 
     return prompt;
 }
