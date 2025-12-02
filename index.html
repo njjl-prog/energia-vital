@@ -158,6 +158,56 @@
             border-left: 5px solid #48bb78;
         }
         
+        /* Estilos para la sección de IA */
+        .seccion-ia {
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .titulo-ia {
+            color: #ea4335;
+            border-left: 4px solid #ea4335;
+            padding-left: 15px;
+        }
+        
+        .contenedor-ia {
+            background: #fef7f7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .cargando-ia {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #fbb6b6;
+            border-top: 4px solid #ea4335;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .resultado-ia {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 20px rgba(234, 67, 53, 0.1);
+            border-left: 5px solid #ea4335;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -206,6 +256,51 @@
             
             <div class="recomendaciones" id="recomendaciones"></div>
             
+            <!-- ============================================ -->
+            <!-- SECCIÓN DE ANÁLISIS CON IA -->
+            <!-- ============================================ -->
+            <div class="seccion-ia" id="seccionIA">
+                <h2 class="titulo-ia">🧠 Análisis Inteligente con IA</h2>
+                
+                <div class="contenedor-ia">
+                    <p style="color: #c5221f;">
+                        <strong>✨ Análisis Avanzado con Google AI</strong><br>
+                        Recibe recomendaciones personalizadas basadas en tu perfil energético.
+                    </p>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+                        <input type="checkbox" id="consentimientoIA" checked>
+                        <label for="consentimientoIA" style="color: #374151;">
+                            Acepto análisis con IA (gratuito y anónimo)
+                        </label>
+                    </div>
+                    
+                    <button id="btnAnalizarIA" 
+                            onclick="analizarConGemini()"
+                            style="background: linear-gradient(90deg, #ea4335, #d23d30); 
+                                   color: white; 
+                                   border: none; 
+                                   padding: 12px 30px; 
+                                   border-radius: 8px; 
+                                   cursor: pointer; 
+                                   font-weight: bold;
+                                   display: flex;
+                                   align-items: center;
+                                   gap: 10px;
+                                   margin: 10px auto;">
+                        🔥 Obtener análisis con IA
+                    </button>
+                    
+                    <div class="cargando-ia" id="cargandoIA">
+                        <div class="spinner"></div>
+                        <p style="color: #6b7280; margin-top: 10px;">Google AI está analizando tu energía...</p>
+                    </div>
+                    
+                    <div class="resultado-ia" id="resultadoIA"></div>
+                </div>
+            </div>
+            <!-- ============================================ -->
+            
             <div style="text-align: center; margin-top: 30px;">
                 <button onclick="window.print()">🖨️ Imprimir resultado</button>
                 <button onclick="location.reload()" style="background: #718096; margin-left: 10px;">🔄 Nueva encuesta</button>
@@ -214,6 +309,10 @@
     </div>
 
     <script>
+        // ============================================
+        // CONFIGURACIÓN GENERAL
+        // ============================================
+        
         // Datos de las 11 fuentes de energía
         const fuentes = [
             {
@@ -298,6 +397,13 @@
         // Ponderaciones (importancia de cada fuente)
         const ponderaciones = [1.2, 1.2, 1.5, 1.0, 1.2, 1.2, 1.5, 1.0, 1.5, 1.0, 1.5];
 
+        // API Key de Google Gemini
+        const GEMINI_API_KEY = 'AIzaSyCC4Io7rZk96_oZp1tSx7YdW7iz4iYdXk0';
+
+        // ============================================
+        // FUNCIONES DE LA ENCUESTA
+        // ============================================
+
         // Generar formulario automáticamente
         function generarFormulario() {
             let html = '';
@@ -372,7 +478,7 @@
             window.miGrafico = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: fuentes.map(f => f.nombre.split(' ')[1]), // Solo el nombre sin emoji
+                    labels: fuentes.map(f => f.nombre.split(' ')[1]),
                     datasets: [{
                         label: 'Tu Energía',
                         data: puntajes,
@@ -508,6 +614,7 @@
             // Mostrar sección de resultados
             document.getElementById('resultado').style.display = 'block';
             mostrarSeccionIA();
+            
             // Scroll suave a resultados
             document.getElementById('resultado').scrollIntoView({ 
                 behavior: 'smooth' 
@@ -516,264 +623,106 @@
 
         // Inicializar formulario al cargar la página
         window.addEventListener('DOMContentLoaded', generarFormulario);
-    </script>
-<!-- ============================================ -->
-<!-- ANÁLISIS CON IA GRATIS (Google Gemini) -->
-<!-- ============================================ -->
 
-<div id="seccionIA" style="display: none; margin-top: 40px;">
-    <h2 style="color: #ea4335; border-left: 4px solid #ea4335; padding-left: 15px;">
-        🧠 Análisis Inteligente con IA
-    </h2>
-    
-    <div style="background: #fef7f7; border-radius: 10px; padding: 20px; margin: 20px 0;">
-        <p style="color: #c5221f;">
-            <strong>✨ Análisis Avanzado con Google AI</strong><br>
-            Recibe recomendaciones personalizadas basadas en tu perfil energético.
-        </p>
-        
-        <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
-            <input type="checkbox" id="consentimientoIA" checked>
-            <label for="consentimientoIA" style="color: #374151;">
-                Acepto análisis con IA (gratuito y anónimo)
-            </label>
-        </div>
-        
-        <button id="btnAnalizarIA" 
-                onclick="analizarConGemini()"
-                style="background: linear-gradient(90deg, #ea4335, #d23d30); 
-                       color: white; 
-                       border: none; 
-                       padding: 12px 30px; 
-                       border-radius: 8px; 
-                       cursor: pointer; 
-                       font-weight: bold;
-                       display: flex;
-                       align-items: center;
-                       gap: 10px;
-                       margin: 10px auto;">
-            🔥 Obtener análisis con IA
-        </button>
-        
-        <div id="cargandoIA" style="display: none; text-align: center; margin: 20px 0;">
-            <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #fbb6b6; border-top: 4px solid #ea4335; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-            <p style="color: #6b7280; margin-top: 10px;">Google AI está analizando tu energía...</p>
-        </div>
-        
-        <div id="resultadoIA" style="display: none;"></div>
-    </div>
-</div>
+        // ============================================
+        // FUNCIONES DE IA CORREGIDAS
+        // ============================================
 
-<script>
-// ============================================
-// CONFIGURACIÓN GOOGLE GEMINI
-// ============================================
-
-// TU API KEY DE GOOGLE GEMINI (REEMPLAZADA)
-const GEMINI_API_KEY = 'AIzaSyCC4Io7rZk96_oZp1tSx7YdW7iz4iYdXk0';
-
-// ============================================
-// FUNCIONES PRINCIPALES
-// ============================================
-
-async function analizarConGemini() {
-    // Verificar consentimiento
-    if (!document.getElementById('consentimientoIA').checked) {
-        alert('Por favor acepta el consentimiento para usar el análisis con IA.');
-        return;
-    }
-    
-    // Ocultar botón, mostrar carga
-    document.getElementById('btnAnalizarIA').style.display = 'none';
-    document.getElementById('cargandoIA').style.display = 'block';
-    document.getElementById('resultadoIA').style.display = 'none';
-    
-    try {
-        // Obtener datos del usuario
-        const puntajes = calcularResultados();
-        const puntuacionFinal = calcularPuntuacionPonderada(puntajes);
-        
-        // Preparar datos para Gemini
-        const prompt = crearPromptGemini(puntajes, puntuacionFinal);
-        
-        // Llamar a Gemini API
-        const analisis = await llamarGeminiAPI(prompt);
-        
-        // Mostrar resultados
-        mostrarAnalisisGemini(analisis);
-        
-    } catch (error) {
-        console.error('Error con Gemini:', error);
-        mostrarAnalisisDeRespaldo(); // Análisis local si falla
-    } finally {
-        // Restaurar interfaz
-        document.getElementById('cargandoIA').style.display = 'none';
-        document.getElementById('resultadoIA').style.display = 'block';
-        document.getElementById('btnAnalizarIA').style.display = 'flex';
-    }
-}
-
-function crearPromptGemini(puntajes, puntuacionFinal) {
-    // 1. CALCULAR áreas bajas y altas DENTRO de esta función
-    const areasBajas = [];
-    const areasAltas = [];
-    
-    fuentes.forEach((fuente, i) => {
-        const puntaje = puntajes[i];
-        const nombreSimple = fuente.nombre.replace(/[^a-zA-Z\s]/g, '').trim();
-        
-        if (puntaje <= 4) {
-            areasBajas.push({nombre: nombreSimple, puntaje, preguntas: fuente.preguntas});
-        } else if (puntaje >= 8) {
-            areasAltas.push({nombre: nombreSimple, puntaje});
+        async function analizarConGemini() {
+            // Verificar consentimiento
+            if (!document.getElementById('consentimientoIA').checked) {
+                alert('Por favor acepta el consentimiento para usar el análisis con IA.');
+                return;
+            }
+            
+            // Ocultar botón, mostrar carga
+            document.getElementById('btnAnalizarIA').style.display = 'none';
+            document.getElementById('cargandoIA').style.display = 'block';
+            document.getElementById('resultadoIA').style.display = 'none';
+            document.getElementById('resultadoIA').innerHTML = '';
+            
+            try {
+                // Obtener datos del usuario
+                const puntajes = calcularResultados();
+                const puntuacionFinal = calcularPuntuacionPonderada(puntajes);
+                
+                console.log("🚀 Iniciando análisis con Gemini...");
+                
+                // Preparar datos para Gemini
+                const prompt = crearPromptGemini(puntajes, puntuacionFinal);
+                
+                // Llamar a Gemini API
+                const analisis = await llamarGeminiAPI(prompt);
+                
+                console.log("✅ Análisis recibido");
+                
+                // Mostrar resultados
+                mostrarAnalisisGemini(analisis);
+                
+            } catch (error) {
+                console.error('❌ Error con Gemini:', error);
+                mostrarAnalisisDeRespaldo(); // Análisis local si falla
+            } finally {
+                // Restaurar interfaz
+                document.getElementById('cargandoIA').style.display = 'none';
+                document.getElementById('resultadoIA').style.display = 'block';
+                document.getElementById('btnAnalizarIA').style.display = 'flex';
+            }
         }
-    });
-    
-    // Ordenar de menor a mayor
-    areasBajas.sort((a, b) => a.puntaje - b.puntaje);
-    areasAltas.sort((a, b) => b.puntaje - a.puntaje);
-    
-    // 2. Determinar perfil (sustituye perfilDetallado)
-    const promedio = puntajes.reduce((a, b) => a + b) / puntajes.length;
-    const bajas = puntajes.filter(p => p < 5).length;
-    
-    let perfilTexto = '';
-    if (promedio >= 8 && bajas <= 1) perfilTexto = 'ENERGÍA ÓPTIMA ⭐';
-    else if (promedio >= 7) perfilTexto = 'ENERGÍA ALTA 🔋';
-    else if (promedio >= 5) perfilTexto = 'ENERGÍA MEDIA ⚖️';
-    else if (promedio >= 3) perfilTexto = 'ENERGÍA BAJA 🔻';
-    else perfilTexto = 'ENERGÍA CRÍTICA 🚨';
-    
-    // 3. Construir el prompt CORREGIDO
-    let prompt = `Eres un coach experto en energía vital y bienestar integral. Analiza estos resultados de una encuesta de energía:
+
+        function crearPromptGemini(puntajes, puntuacionFinal) {
+            // Calcular áreas dentro de la función
+            const areasBajas = [];
+            const areasAltas = [];
+            
+            fuentes.forEach((fuente, i) => {
+                const puntaje = puntajes[i];
+                const nombreSimple = fuente.nombre.replace(/[^a-zA-Z\s]/g, '').trim();
+                
+                if (puntaje <= 4) {
+                    areasBajas.push({nombre: nombreSimple, puntaje});
+                } else if (puntaje >= 8) {
+                    areasAltas.push({nombre: nombreSimple, puntaje});
+                }
+            });
+            
+            areasBajas.sort((a, b) => a.puntaje - b.puntaje);
+            areasAltas.sort((a, b) => b.puntaje - a.puntaje);
+            
+            // Determinar perfil
+            const promedio = puntajes.reduce((a, b) => a + b) / puntajes.length;
+            const bajas = puntajes.filter(p => p < 5).length;
+            
+            let perfilTexto = '';
+            if (promedio >= 8 && bajas <= 1) perfilTexto = 'ENERGÍA ÓPTIMA ⭐';
+            else if (promedio >= 7) perfilTexto = 'ENERGÍA ALTA 🔋';
+            else if (promedio >= 5) perfilTexto = 'ENERGÍA MEDIA ⚖️';
+            else if (promedio >= 3) perfilTexto = 'ENERGÍA BAJA 🔻';
+            else perfilTexto = 'ENERGÍA CRÍTICA 🚨';
+            
+            return `Eres José Luis Ogalde Henríquez, experto en Energía Vital. Analiza estos resultados:
 
 PUNTUACIÓN TOTAL: ${puntuacionFinal}/10
+PERFIL: ${perfilTexto}
 
-RESULTADOS DETALLADOS:
+RESULTADOS:
 ${fuentes.map((f, i) => `${f.nombre}: ${puntajes[i].toFixed(1)}/10`).join('\n')}
 
-PERFIL ENERGÉTICO: ${perfilTexto}
+PROPORCIONA UN ANÁLISIS DETALLADO QUE INCLUYA:
+1. Diagnóstico integral (2-3 párrafos)
+2. Áreas clave a trabajar ${areasBajas.length > 0 ? `(${areasBajas.slice(0,2).map(a => a.nombre).join(', ')})` : ''}
+3. Fortalezas principales ${areasAltas.length > 0 ? `(${areasAltas.slice(0,2).map(a => a.nombre).join(', ')})` : ''}
+4. Plan de acción semanal concreto
+5. Un consejo inmediato para hoy
 
-🔍 **ANÁLISIS DETALLADO REQUERIDO:**
+Formato: Español práctico, motivador, máximo 600 palabras. Usa emojis y estructura clara.`;
+        }
 
-1. **DIAGNÓSTICO INTEGRAL (3-4 párrafos):**
-   - Interpretación de la puntuación global en contexto
-   - Análisis del patrón energético (¿es equilibrado, polarizado, consistente?)
-   - Relación entre áreas altas y bajas (¿se compensan o se contradicen?)
-   - Implicaciones para la vida diaria y bienestar general
-
-2. **ÁREAS CRÍTICAS (enfócate en las 2-3 más bajas):`
-    
-    // Añadir áreas bajas solo si existen
-    if (areasBajas.length > 0) {
-        prompt += `
-${areasBajas.slice(0, 3).map(area => `   • **${area.nombre}** (${area.puntaje.toFixed(1)}/10):
-     - ¿Por qué esta área está tan baja? Posibles causas profundas
-     - Cómo afecta directamente a las otras áreas de energía
-     - Síntomas específicos que podría estar experimentando
-     - Ejemplos concretos de cómo se manifiesta en el día a día`).join('')}`;
-    } else {
-        prompt += `
-   ✅ No se identificaron áreas críticas (todo está por encima de 4/10)`;
-    }
-    
-    prompt += `
-
-3. **FORTALEZAS ENERGÉTICAS (destaca las 2-3 más altas):`
-    
-    if (areasAltas.length > 0) {
-        prompt += `
-${areasAltas.slice(0, 3).map(area => `   • **${area.nombre}** (${area.puntaje.toFixed(1)}/10):
-     - Cómo puede usar esta fortaleza para compensar áreas bajas
-     - Estrategias para mantener y potenciar esta área
-     - Cómo compartir esta energía con otros`).join('')}`;
-    } else {
-        prompt += `
-   📈 Todas las áreas tienen espacio para mejorar (ninguna supera 8/10)`;
-    }
-    
-    prompt += `
-
-4. **PLAN DE ACCIÓN PERSONALIZADO (concreto y realista):**
-   **PRIMERA SEMANA:**
-   - Día 1-2: Acción pequeña para el área más crítica ${areasBajas.length > 0 ? `(${areasBajas[0].nombre})` : '(elegir una área a mejorar)'}
-   - Día 3-4: Hábito para fortalecer área más alta ${areasAltas.length > 0 ? `(${areasAltas[0].nombre})` : '(elegir tu mejor área)'}
-   - Día 5-7: Integración de ambas energías
-
-   **PRIMER MES:**
-   - Objetivo principal basado en tu perfil ${perfilTexto}
-   - Métricas de seguimiento (¿cómo sabrá que está mejorando?)
-   - Señales de alerta (¿cuándo debe ajustar el plan?)
-
-5. **CONEXIONES SISTÉMICAS:`
-    
-    if (areasBajas.length > 0 && areasAltas.length > 0) {
-        prompt += `
-   - Cómo ${areasBajas[0].nombre} (área más baja) afecta específicamente a ${areasAltas[0].nombre} (área más alta)`;
-    }
-    
-    prompt += `
-   - Sinergias naturales que podría estar desaprovechando
-   - Circuitos energéticos que necesita fortalecer
-
-6. **RECOMENDACIONES ESPECÍFICAS SEGÚN PERFIL:**
-   - Para ${perfilTexto}: 
-     * Rutina matutina ideal
-     * Alimentos que potencien sus áreas débiles
-     * Tipo de ejercicio más beneficioso
-     * Estrategias para momentos de baja energía
-
-7. **METÁFORA ENERGÉTICA PERSONALIZADA:**
-   - Una metáfora que represente su estado actual
-   - Cómo transformar esa metáfora en los próximos meses
-
-8. **MENSAJE DE COACHING FINAL:**
-   - Un insight único basado en sus datos
-   - Un recordatorio compasivo
-   - Una pregunta poderosa para reflexionar esta semana
-
-🎨 **ESTILO Y TONO:**
-- Profesional pero cálido, como un mentor experimentado
-- Concreto y práctico, no teórico
-- Usa analogías y metáforas relacionadas con energía
-- Incluye 1-2 preguntas reflexivas
-- Español latinoamericano, natural y conversacional
-- Máximo 800 palabras, bien estructurado
-
-💫 **FORMATO DE SALIDA:**
-Usa emojis relevantes, negritas para títulos, y viñetas para listas.
-Sección por sección, claro y fácil de seguir.`;
-
-    return prompt;
-}
-
-function determinarPerfilEnergético(puntajes) {
-    const promedio = puntajes.reduce((a, b) => a + b) / puntajes.length;
-    const bajas = puntajes.filter(p => p < 5).length;
-    
-    if (promedio >= 8 && bajas <= 1) return 'ENERGÍA ÓPTIMA ⭐';
-    if (promedio >= 7) return 'ENERGÍA ALTA 🔋';
-    if (promedio >= 5) return 'ENERGÍA MEDIA ⚖️';
-    if (promedio >= 3) return 'ENERGÍA BAJA 🔻';
-    return 'ENERGÍA CRÍTICA 🚨';
-}
-
-async function llamarGeminiAPI(prompt) {
-    // Lista de modelos a intentar (en orden)
-    const modelos = [
-        'gemini-1.5-pro-latest',    // El más reciente y potente
-        'gemini-1.0-pro-latest',    // Alternativa
-        'gemini-1.0-pro',           // Original
-        'gemini-pro'                // Legacy
-    ];
-    
-    let ultimoError = null;
-    
-    for (const modelo of modelos) {
-        try {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
+        async function llamarGeminiAPI(prompt) {
+            // USAR MODELO ACTUALIZADO: gemini-1.0-pro
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${GEMINI_API_KEY}`;
             
-            console.log(`🔄 Intentando con modelo: ${modelo}`);
+            console.log("📡 Llamando a Gemini API...");
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -787,9 +736,9 @@ async function llamarGeminiAPI(prompt) {
                         }]
                     }],
                     generationConfig: {
-                        temperature: 0.85,
-                        maxOutputTokens: 2000,
-                        topP: 0.95,
+                        temperature: 0.8,
+                        maxOutputTokens: 1500,
+                        topP: 0.9,
                         topK: 40
                     },
                     safetySettings: [
@@ -814,185 +763,163 @@ async function llamarGeminiAPI(prompt) {
             });
             
             if (!response.ok) {
-                const errorText = await response.text();
-                console.log(`❌ Modelo ${modelo} falló: ${response.status}`);
-                ultimoError = new Error(`Modelo ${modelo}: ${response.status} - ${errorText}`);
-                continue; // Intentar siguiente modelo
+                const error = await response.text();
+                console.error("❌ Error de Gemini:", response.status, error);
+                throw new Error(`Error Gemini: ${response.status} - ${error}`);
             }
             
             const data = await response.json();
             
             if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                console.log(`✅ Modelo ${modelo} funcionó correctamente`);
+                console.log("✅ Gemini respondió correctamente");
                 return data.candidates[0].content.parts[0].text;
             } else {
                 throw new Error('Respuesta inesperada de Gemini API');
             }
-            
-        } catch (error) {
-            console.log(`❌ Error con modelo ${modelo}:`, error.message);
-            ultimoError = error;
-            // Continuar con el siguiente modelo
         }
-    }
-    
-    // Si todos los modelos fallaron
-    throw ultimoError || new Error('Todos los modelos de Gemini fallaron');
-}
 
-function mostrarAnalisisGemini(analisis) {
-    // Formatear la respuesta (mantener saltos de línea)
-    const textoFormateado = analisis
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>');
-    
-    const html = `
-        <div style="background: white; border-radius: 10px; padding: 25px; margin: 20px 0; box-shadow: 0 4px 20px rgba(234, 67, 53, 0.1); border-left: 5px solid #ea4335;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: #ea4335;">
-                <div style="width: 40px; height: 40px; background: #fee; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <span style="font-size: 1.2em;">🤖</span>
+        function mostrarAnalisisGemini(analisis) {
+            // Formatear la respuesta (mantener saltos de línea)
+            const textoFormateado = analisis
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+            
+            const html = `
+                <div class="resultado-ia">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: #ea4335;">
+                        <div style="width: 40px; height: 40px; background: #fee; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 1.2em;">🤖</span>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.3em;">Análisis por Google AI</h3>
+                            <small style="color: #9ca3af;">Generado con Gemini Pro</small>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="margin: 0; color: #374151; line-height: 1.6;">${textoFormateado}</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="copiarAnalisis()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                            📋 Copiar análisis
+                        </button>
+                        <button onclick="compartirAnalisis()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                            📱 Compartir
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb; text-align: center;">
+                        <small style="color: #9ca3af;">
+                            ✨ Análisis generado por IA | 
+                            <span id="fechaAnalisis" style="color: #6b7280;">${new Date().toLocaleDateString('es-ES')}</span>
+                        </small>
+                    </div>
                 </div>
-                <div>
-                    <h3 style="margin: 0; font-size: 1.3em;">Análisis por Google AI</h3>
-                    <small style="color: #9ca3af;">Generado con Gemini Pro</small>
-                </div>
-            </div>
+            `;
             
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="margin: 0; color: #374151; line-height: 1.6;">${textoFormateado}</p>
-            </div>
-            
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button onclick="copiarAnalisis()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                    📋 Copiar análisis
-                </button>
-                <button onclick="compartirAnalisis()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                    📱 Compartir
-                </button>
-                <button onclick="generarPDF()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                    📄 Guardar PDF
-                </button>
-            </div>
-            
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb; text-align: center;">
-                <small style="color: #9ca3af;">
-                    ✨ Análisis generado por IA | 
-                    <span id="fechaAnalisis" style="color: #6b7280;"></span>
-                </small>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('resultadoIA').innerHTML = html;
-    document.getElementById('fechaAnalisis').textContent = new Date().toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-function mostrarAnalisisDeRespaldo() {
-    const puntajes = calcularResultados();
-    const perfil = determinarPerfilEnergético(puntajes);
-    
-    // Encontrar áreas más bajas y más altas
-    let areasBajas = [];
-    let areasAltas = [];
-    
-    fuentes.forEach((fuente, i) => {
-        if (puntajes[i] <= 4) {
-            areasBajas.push({nombre: fuente.nombre.split(' ')[1], puntaje: puntajes[i]});
+            document.getElementById('resultadoIA').innerHTML = html;
         }
-        if (puntajes[i] >= 8) {
-            areasAltas.push({nombre: fuente.nombre.split(' ')[1], puntaje: puntajes[i]});
+
+        function mostrarAnalisisDeRespaldo() {
+            const puntajes = calcularResultados();
+            
+            // Determinar perfil
+            const promedio = puntajes.reduce((a, b) => a + b) / puntajes.length;
+            const bajas = puntajes.filter(p => p < 5).length;
+            
+            let perfil = '';
+            if (promedio >= 8 && bajas <= 1) perfil = 'ENERGÍA ÓPTIMA ⭐';
+            else if (promedio >= 7) perfil = 'ENERGÍA ALTA 🔋';
+            else if (promedio >= 5) perfil = 'ENERGÍA MEDIA ⚖️';
+            else if (promedio >= 3) perfil = 'ENERGÍA BAJA 🔻';
+            else perfil = 'ENERGÍA CRÍTICA 🚨';
+            
+            // Encontrar áreas más bajas y más altas
+            let areasBajas = [];
+            let areasAltas = [];
+            
+            fuentes.forEach((fuente, i) => {
+                if (puntajes[i] <= 4) {
+                    areasBajas.push({nombre: fuente.nombre.split(' ')[1], puntaje: puntajes[i]});
+                }
+                if (puntajes[i] >= 8) {
+                    areasAltas.push({nombre: fuente.nombre.split(' ')[1], puntaje: puntajes[i]});
+                }
+            });
+            
+            // Ordenar de menor a mayor
+            areasBajas.sort((a, b) => a.puntaje - b.puntaje);
+            areasAltas.sort((a, b) => b.puntaje - a.puntaje);
+            
+            let analisis = `<div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin-bottom: 15px;">`;
+            analisis += `<h4 style="color: #0369a1; margin-top: 0;">📊 ${perfil}</h4>`;
+            
+            if (areasAltas.length > 0) {
+                analisis += `<p><strong>✅ Tus fortalezas:</strong><br>`;
+                areasAltas.slice(0, 3).forEach(area => {
+                    analisis += `• ${area.nombre} (${area.puntaje.toFixed(1)}/10)<br>`;
+                });
+                analisis += `</p>`;
+            }
+            
+            if (areasBajas.length > 0) {
+                analisis += `<p><strong>🎯 Áreas a trabajar:</strong><br>`;
+                areasBajas.slice(0, 3).forEach(area => {
+                    analisis += `• ${area.nombre} (${area.puntaje.toFixed(1)}/10)<br>`;
+                });
+                analisis += `</p>`;
+            }
+            
+            // Consejo específico
+            const consejos = {
+                'ENERGÍA ÓPTIMA ⭐': '¡Excelente! Comparte tus hábitos energéticos con alguien hoy.',
+                'ENERGÍA ALTA 🔋': 'Mantén tu momentum. Identifica una nueva área para crecer.',
+                'ENERGÍA MEDIA ⚖️': 'Enfócate en equilibrio. Elige una área baja para mejorar 1% cada día.',
+                'ENERGÍA BAJA 🔻': 'Prioriza autocuidado. Comienza con respiración consciente 5 min/día.',
+                'ENERGÍA CRÍTICA 🚨': 'Enfócate en lo esencial: sueño, alimentación, respiración. Pequeños pasos.'
+            };
+            
+            analisis += `<p><strong>💡 Acción para hoy:</strong><br>${consejos[perfil] || 'Toma 5 respiraciones profundas ahora mismo.'}</p>`;
+            analisis += `</div>`;
+            
+            document.getElementById('resultadoIA').innerHTML = analisis;
         }
-    });
-    
-    // Ordenar de menor a mayor
-    areasBajas.sort((a, b) => a.puntaje - b.puntaje);
-    areasAltas.sort((a, b) => b.puntaje - a.puntaje);
-    
-    let analisis = `<div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin-bottom: 15px;">`;
-    analisis += `<h4 style="color: #0369a1; margin-top: 0;">📊 ${perfil}</h4>`;
-    
-    if (areasAltas.length > 0) {
-        analisis += `<p><strong>✅ Tus fortalezas:</strong><br>`;
-        areasAltas.slice(0, 3).forEach(area => {
-            analisis += `• ${area.nombre} (${area.puntaje.toFixed(1)}/10)<br>`;
-        });
-        analisis += `</p>`;
-    }
-    
-    if (areasBajas.length > 0) {
-        analisis += `<p><strong>🎯 Áreas a trabajar:</strong><br>`;
-        areasBajas.slice(0, 3).forEach(area => {
-            analisis += `• ${area.nombre} (${area.puntaje.toFixed(1)}/10)<br>`;
-        });
-        analisis += `</p>`;
-    }
-    
-    // Consejo específico
-    const consejos = {
-        'ENERGÍA ÓPTIMA ⭐': '¡Excelente! Comparte tus hábitos energéticos con alguien hoy.',
-        'ENERGÍA ALTA 🔋': 'Mantén tu momentum. Identifica una nueva área para crecer.',
-        'ENERGÍA MEDIA ⚖️': 'Enfócate en equilibrio. Elige una área baja para mejorar 1% cada día.',
-        'ENERGÍA BAJA 🔻': 'Prioriza autocuidado. Comienza con respiración consciente 5 min/día.',
-        'ENERGÍA CRÍTICA 🚨': 'Enfócate en lo esencial: sueño, alimentación, respiración. Pequeños pasos.'
-    };
-    
-    analisis += `<p><strong>💡 Acción para hoy:</strong><br>${consejos[perfil] || 'Toma 5 respiraciones profundas ahora mismo.'}</p>`;
-    analisis += `</div>`;
-    
-    document.getElementById('resultadoIA').innerHTML = analisis;
-}
 
-// ============================================
-// FUNCIONES AUXILIARES
-// ============================================
+        // ============================================
+        // FUNCIONES AUXILIARES
+        // ============================================
 
-function copiarAnalisis() {
-    const texto = document.querySelector('#resultadoIA p').innerText;
-    navigator.clipboard.writeText(texto).then(() => {
-        alert('✅ Análisis copiado al portapapeles');
-    });
-}
+        function copiarAnalisis() {
+            const texto = document.querySelector('#resultadoIA p')?.innerText || document.querySelector('#resultadoIA').innerText;
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('✅ Análisis copiado al portapapeles');
+            });
+        }
 
-function compartirAnalisis() {
-    if (navigator.share) {
-        navigator.share({
-            title: 'Mi Análisis de Energía Vital',
-            text: 'Acabo de recibir mi análisis personalizado de energía vital con IA.',
-            url: window.location.href
-        });
-    } else {
-        copiarAnalisis();
-        alert('📋 Enlace copiado. Compártelo donde quieras.');
-    }
-}
+        function compartirAnalisis() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mi Análisis de Energía Vital',
+                    text: 'Acabo de recibir mi análisis personalizado de energía vital con IA.',
+                    url: window.location.href
+                });
+            } else {
+                copiarAnalisis();
+                alert('📋 Enlace copiado. Compártelo donde quieras.');
+            }
+        }
 
-function generarPDF() {
-    alert('🔄 Generando PDF... (función en desarrollo)');
-    // En el futuro: implementar generación de PDF con jsPDF
-}
-
-function mostrarSeccionIA() {
-    document.getElementById('seccionIA').style.display = 'block';
-    setTimeout(() => {
-        document.getElementById('seccionIA').scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }, 300);
-}
-</script>
-
-<style>
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-</style>
+        function mostrarSeccionIA() {
+            document.getElementById('seccionIA').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('seccionIA').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 300);
+        }
+    </script>
 </body>
 </html>
