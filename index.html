@@ -719,48 +719,47 @@ Formato: Español práctico, motivador, máximo 600 palabras. Usa emojis y estru
         }
 
         async function llamarGeminiAPI(prompt) {
-            // USAR MODELO ACTUALIZADO: gemini-1.0-pro
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${GEMINI_API_KEY}`;
+    // Modelos actuales de Gemini (2024)
+    const modelos = [
+        'gemini-2.5-flash',     // Más reciente y rápido
+        'gemini-2.0-flash',     // Estable
+        'gemini-1.5-flash',     // Alternativa
+        'gemini-1.5-pro',       // Si tienes acceso
+        'gemini-1.0-pro'        // Último recurso
+    ];
+    
+    for (const modelo of modelos) {
+        try {
+            console.log(`🔄 Probando modelo: ${modelo}`);
             
-            console.log("📡 Llamando a Gemini API...");
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
             
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.8,
-                        maxOutputTokens: 1500,
-                        topP: 0.9,
-                        topK: 40
-                    },
-                    safetySettings: [
-                        {
-                            category: "HARM_CATEGORY_HARASSMENT",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        },
-                        {
-                            category: "HARM_CATEGORY_HATE_SPEECH",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        },
-                        {
-                            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        },
-                        {
-                            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        }
-                    ]
-                })
+                    contents: [{parts: [{text: prompt}]}],
+                    generationConfig: {maxOutputTokens: 1000}
+                }),
+                timeout: 10000 // 10 segundos máximo
             });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log(`✅ Modelo ${modelo} funcionó`);
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                const error = await response.text();
+                console.log(`❌ Modelo ${modelo} falló: ${response.status}`);
+                // Continuar con siguiente modelo
+            }
+        } catch (error) {
+            console.log(`⚠️ Error con ${modelo}:`, error.message);
+        }
+    }
+    
+    throw new Error('Ningún modelo de Gemini está disponible');
+}
             
             if (!response.ok) {
                 const error = await response.text();
