@@ -1,14 +1,917 @@
-async function llamarGeminiAPI(prompt) {
-    // Modelos actuales de Gemini... [código]
-    
-    for (const modelo of modelos) {
-        // ... código de prueba
-    }
-    
-    // ¡CÓDIGO DUPLICADO AQUÍ! (esto estaba de más)
-    if (!response.ok) {
-        // ... más código
-    }
-    
-    // ¡MÁS CÓDIGO DUPLICADO!
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Energía Vital</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #4299e1;
+        }
+        
+        h2 {
+            color: #4a5568;
+            margin: 25px 0 15px 0;
+            padding-left: 10px;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .fuente {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .pregunta {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .texto-pregunta {
+            flex: 1;
+            font-size: 1.1em;
+            color: #4a5568;
+        }
+        
+        .rango-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 200px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #e2e8f0;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #4299e1;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .valor {
+            font-weight: bold;
+            color: #2b6cb0;
+            font-size: 1.2em;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+            margin: 40px auto;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
+        }
+        
+        .resultado {
+            display: none;
+            animation: aparecer 0.5s ease;
+        }
+        
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .grafico-container {
+            max-width: 700px;
+            margin: 40px auto;
+        }
+        
+        .resumen {
+            background: #ebf8ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            border-left: 5px solid #4299e1;
+        }
+        
+        .puntuacion-final {
+            font-size: 1.8em;
+            color: #2b6cb0;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .recomendaciones {
+            background: #f0fff4;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 5px solid #48bb78;
+        }
+        
+        /* Estilos para la sección de IA */
+        .seccion-ia {
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .titulo-ia {
+            color: #ea4335;
+            border-left: 4px solid #ea4335;
+            padding-left: 15px;
+        }
+        
+        .contenedor-ia {
+            background: #fef7f7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .cargando-ia {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #fbb6b6;
+            border-top: 4px solid #ea4335;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .resultado-ia {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 20px rgba(234, 67, 53, 0.1);
+            border-left: 5px solid #ea4335;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .pregunta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .rango-container {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Diagnóstico de Energía Vital</h1>
+        <p style="text-align: center; margin-bottom: 30px; color: #718096;">
+            Responde cada pregunta del 1 (muy bajo) al 10 (muy alto) para conocer tu perfil energético
+        </p>
+        
+        <form id="encuestaForm">
+            <!-- Las 11 fuentes de energía -->
+            <div id="preguntas">
+                <!-- Generado automáticamente por JavaScript -->
+            </div>
+            
+            <button type="submit">📊 Ver mis resultados</button>
+        </form>
+        
+        <div class="resultado" id="resultado">
+            <h2>Tu Perfil Energético</h2>
+            
+            <div class="grafico-container">
+                <canvas id="radarChart"></canvas>
+            </div>
+            
+            <div class="resumen">
+                <h3>📈 Resumen de tu energía</h3>
+                <div id="resumenTexto"></div>
+                <div class="puntuacion-final" id="puntuacionFinal"></div>
+            </div>
+            
+            <div class="recomendaciones" id="recomendaciones"></div>
+            
+            <!-- ============================================ -->
+            <!-- SECCIÓN DE ANÁLISIS CON IA -->
+            <!-- ============================================ -->
+            <div class="seccion-ia" id="seccionIA">
+                <h2 class="titulo-ia">🧠 Análisis Inteligente con IA</h2>
+                
+                <div class="contenedor-ia">
+                    <p style="color: #c5221f;">
+                        <strong>✨ Análisis Avanzado con Google AI</strong><br>
+                        Recibe recomendaciones personalizadas basadas en tu perfil energético.
+                    </p>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+                        <input type="checkbox" id="consentimientoIA" checked>
+                        <label for="consentimientoIA" style="color: #374151;">
+                            Acepto análisis con IA (gratuito y anónimo)
+                        </label>
+                    </div>
+                    
+                    <button id="btnAnalizarIA" 
+                            onclick="analizarConGemini()"
+                            style="background: linear-gradient(90deg, #ea4335, #d23d30); 
+                                   color: white; 
+                                   border: none; 
+                                   padding: 12px 30px; 
+                                   border-radius: 8px; 
+                                   cursor: pointer; 
+                                   font-weight: bold;
+                                   display: flex;
+                                   align-items: center;
+                                   gap: 10px;
+                                   margin: 10px auto;">
+                        🔥 Obtener análisis con IA
+                    </button>
+                    
+                    <div class="cargando-ia" id="cargandoIA">
+                        <div class="spinner"></div>
+                        <p style="color: #6b7280; margin-top: 10px;">Google AI está analizando tu energía...</p>
+                    </div>
+                    
+                    <div class="resultado-ia" id="resultadoIA"></div>
+                </div>
+            </div>
+            <!-- ============================================ -->
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="window.print()">🖨️ Imprimir resultado</button>
+                <button onclick="location.reload()" style="background: #718096; margin-left: 10px;">🔄 Nueva encuesta</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN GENERAL
+        // ============================================
+        
+        // Datos de las 11 fuentes de energía
+        const fuentes = [
+            {
+                nombre: "🍎 ALIMENTACIÓN",
+                preguntas: [
+                    "¿Cómo valoras la calidad de tu alimentación diaria?",
+                    "¿Sientes que tu alimentación te aporta energía estable?"
+                ]
+            },
+            {
+                nombre: "🏃 EJERCICIO",
+                preguntas: [
+                    "¿Con qué frecuencia realizas actividad física?",
+                    "¿Te sientes con más energía y ánimo después de ejercitarte?"
+                ]
+            },
+            {
+                nombre: "😴 DORMIR",
+                preguntas: [
+                    "¿Consideras que duermes las horas necesarias?",
+                    "¿Despiertas con sensación de descanso?"
+                ]
+            },
+            {
+                nombre: "💑 SEXO",
+                preguntas: [
+                    "¿Sientes que tu vida sexual contribuye a tu bienestar?",
+                    "¿Experimentas satisfacción y conexión en este ámbito?"
+                ]
+            },
+            {
+                nombre: "🧘 MEDITACIÓN",
+                preguntas: [
+                    "¿Practicas momentos de relajación o meditación?",
+                    "¿Sientes que reduces el estrés mediante estas prácticas?"
+                ]
+            },
+            {
+                nombre: "🌬️ RESPIRACIÓN",
+                preguntas: [
+                    "¿Eres consciente de tu forma de respirar en momentos de estrés?",
+                    "¿Utilizas la respiración para calmarte o centrarte?"
+                ]
+            },
+            {
+                nombre: "👨‍👩‍👧‍👦 ENTORNO CERCANO",
+                preguntas: [
+                    "¿Tu entorno cercano (familia, amigos) te apoya y suma energía?",
+                    "¿Te sientes escuchado y valorado en tu círculo íntimo?"
+                ]
+            },
+            {
+                nombre: "🏢 ENTORNO AMPLIADO",
+                preguntas: [
+                    "¿Tu entorno amplio (trabajo, redes) te inspira o desgasta?",
+                    "¿Logras establecer límites para proteger tu energía?"
+                ]
+            },
+            {
+                nombre: "😊 ACTITUD",
+                preguntas: [
+                    "¿Practicas la gratitud y la positividad con frecuencia?",
+                    "¿Evitas criticar y compararte con los demás?"
+                ]
+            },
+            {
+                nombre: "💰 DINERO",
+                preguntas: [
+                    "¿Sientes que tu situación económica te da tranquilidad?",
+                    "¿Administras tu dinero de forma que no te cause estrés?"
+                ]
+            },
+            {
+                nombre: "🎯 PROPÓSITO",
+                preguntas: [
+                    "¿Sientes que tu trabajo/actividades tienen sentido para ti?",
+                    "¿Te apasiona lo que haces?"
+                ]
+            }
+        ];
+
+        // Ponderaciones (importancia de cada fuente)
+        const ponderaciones = [1.2, 1.2, 1.5, 1.0, 1.2, 1.2, 1.5, 1.0, 1.5, 1.0, 1.5];
+
+        // API Key de Google Gemini
+        const GEMINI_API_KEY = 'AIzaSyCC4Io7rZk96_oZp1tSx7YdW7iz4iYdXk0';
+
+        // ============================================
+        // FUNCIONES DE LA ENCUESTA
+        // ============================================
+
+        // Generar formulario automáticamente
+        function generarFormulario() {
+            let html = '';
+            
+            fuentes.forEach((fuente, indice) => {
+                html += `
+                <div class="fuente">
+                    <h3>${fuente.nombre}</h3>
+                `;
+                
+                fuente.preguntas.forEach((pregunta, pIndex) => {
+                    const id = `f${indice}p${pIndex}`;
+                    html += `
+                    <div class="pregunta">
+                        <div class="texto-pregunta">${pregunta}</div>
+                        <div class="rango-container">
+                            <input type="range" 
+                                   id="${id}" 
+                                   min="1" 
+                                   max="10" 
+                                   value="5" 
+                                   class="rango-slider"
+                                   data-fuente="${indice}">
+                            <span class="valor" id="valor-${id}">5</span>
+                        </div>
+                    </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            });
+            
+            document.getElementById('preguntas').innerHTML = html;
+            
+            // Añadir event listeners a los sliders
+            document.querySelectorAll('.rango-slider').forEach(slider => {
+                const valorSpan = document.getElementById(`valor-${slider.id}`);
+                
+                slider.addEventListener('input', function() {
+                    valorSpan.textContent = this.value;
+                });
+            });
+        }
+
+        // Calcular resultados
+        function calcularResultados() {
+            const promedios = [];
+            
+            for (let i = 0; i < fuentes.length; i++) {
+                const sliders = document.querySelectorAll(`[data-fuente="${i}"]`);
+                let suma = 0;
+                
+                sliders.forEach(slider => {
+                    suma += parseInt(slider.value);
+                });
+                
+                promedios.push(suma / sliders.length);
+            }
+            
+            return promedios;
+        }
+
+        // Crear gráfico radial
+        function crearGraficoRadial(puntajes) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            // Destruir gráfico anterior si existe
+            if (window.miGrafico) {
+                window.miGrafico.destroy();
+            }
+            
+            window.miGrafico = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: fuentes.map(f => f.nombre.split(' ')[1]),
+                    datasets: [{
+                        label: 'Tu Energía',
+                        data: puntajes,
+                        backgroundColor: 'rgba(66, 153, 225, 0.2)',
+                        borderColor: 'rgba(66, 153, 225, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(66, 153, 225, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10,
+                            min: 0,
+                            ticks: {
+                                stepSize: 2,
+                                backdropColor: 'transparent'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            angleLines: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 12
+                                },
+                                color: '#4a5568'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Calcular puntuación ponderada
+        function calcularPuntuacionPonderada(puntajes) {
+            let sumaPonderada = 0;
+            let sumaPonderaciones = 0;
+            
+            puntajes.forEach((puntaje, index) => {
+                sumaPonderada += puntaje * ponderaciones[index];
+                sumaPonderaciones += ponderaciones[index];
+            });
+            
+            return (sumaPonderada / sumaPonderaciones).toFixed(1);
+        }
+
+        // Generar recomendaciones
+        function generarRecomendaciones(puntajes) {
+            const bajas = [];
+            const altas = [];
+            
+            puntajes.forEach((puntaje, index) => {
+                if (puntaje < 5) {
+                    bajas.push(fuentes[index].nombre.split(' ')[1]);
+                } else if (puntaje >= 8) {
+                    altas.push(fuentes[index].nombre.split(' ')[1]);
+                }
+            });
+            
+            let html = '<h3>💡 Recomendaciones</h3>';
+            
+            if (bajas.length > 0) {
+                html += '<p><strong>Áreas a mejorar:</strong> ' + bajas.join(', ') + '</p>';
+                html += '<p>Sugerencias: Dedica más atención a estas fuentes de energía. Pequeños cambios pueden generar grandes mejoras.</p>';
+            }
+            
+            if (altas.length > 0) {
+                html += '<p><strong>Tus fortalezas:</strong> ' + altas.join(', ') + '</p>';
+                html += '<p>¡Excelente! Sigue manteniendo estas áreas fuertes.</p>';
+            }
+            
+            return html;
+        }
+
+        // Generar resumen
+        function generarResumen(puntajes) {
+            let html = '<ul>';
+            
+            fuentes.forEach((fuente, index) => {
+                const nombreCorto = fuente.nombre.split(' ')[1];
+                const puntaje = puntajes[index];
+                let emoji = '⚡';
+                
+                if (puntaje < 4) emoji = '🔴';
+                else if (puntaje < 7) emoji = '🟡';
+                else emoji = '🟢';
+                
+                html += `<li>${emoji} <strong>${nombreCorto}:</strong> ${puntaje.toFixed(1)}/10</li>`;
+            });
+            
+            html += '</ul>';
+            return html;
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('encuestaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Calcular resultados
+            const puntajes = calcularResultados();
+            
+            // Crear gráfico
+            crearGraficoRadial(puntajes);
+            
+            // Calcular puntuación final
+            const puntuacionFinal = calcularPuntuacionPonderada(puntajes);
+            
+            // Mostrar resultados
+            document.getElementById('resumenTexto').innerHTML = generarResumen(puntajes);
+            document.getElementById('puntuacionFinal').textContent = `Puntuación total: ${puntuacionFinal}/10`;
+            document.getElementById('recomendaciones').innerHTML = generarRecomendaciones(puntajes);
+            
+            // Mostrar sección de resultados
+            document.getElementById('resultado').style.display = 'block';
+            mostrarSeccionIA();
+            
+            // Scroll suave a resultados
+            document.getElementById('resultado').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        });
+
+        // Inicializar formulario al cargar la página
+        window.addEventListener('DOMContentLoaded', generarFormulario);
+
+        // ============================================
+        // FUNCIONES DE IA CORREGIDAS
+        // ============================================
+
+        async function analizarConGemini() {
+            // Verificar consentimiento
+            if (!document.getElementById('consentimientoIA').checked) {
+                alert('Por favor acepta el consentimiento para usar el análisis con IA.');
+                return;
+            }
+            
+            // Ocultar botón, mostrar carga
+            document.getElementById('btnAnalizarIA').style.display = 'none';
+            document.getElementById('cargandoIA').style.display = 'block';
+            document.getElementById('resultadoIA').style.display = 'none';
+            document.getElementById('resultadoIA').innerHTML = '';
+            
+            try {
+                // Obtener datos del usuario
+                const puntajes = calcularResultados();
+                const puntuacionFinal = calcularPuntuacionPonderada(puntajes);
+                
+                console.log("🚀 Iniciando análisis con Gemini...");
+                
+                // Preparar datos para Gemini
+                const prompt = crearPromptGemini(puntajes, puntuacionFinal);
+                
+                // Llamar a Gemini API
+                const analisis = await llamarGeminiAPI(prompt);
+                
+                console.log("✅ Análisis recibido");
+                
+                // Mostrar resultados
+                mostrarAnalisisGemini(analisis);
+                
+            } catch (error) {
+                console.error('❌ Error con Gemini:', error);
+                mostrarAnalisisDeRespaldo(); // Análisis local si falla
+            } finally {
+                // Restaurar interfaz
+                document.getElementById('cargandoIA').style.display = 'none';
+                document.getElementById('resultadoIA').style.display = 'block';
+                document.getElementById('btnAnalizarIA').style.display = 'flex';
+            }
+        }
+
+        function crearPromptGemini(puntajes, puntuacionFinal) {
+            // Calcular áreas dentro de la función
+            const areasBajas = [];
+            const areasAltas = [];
+            
+            fuentes.forEach((fuente, i) => {
+                const puntaje = puntajes[i];
+                const nombreSimple = fuente.nombre.replace(/[^a-zA-Z\s]/g, '').trim();
+                
+                if (puntaje <= 4) {
+                    areasBajas.push({nombre: nombreSimple, puntaje});
+                } else if (puntaje >= 8) {
+                    areasAltas.push({nombre: nombreSimple, puntaje});
+                }
+            });
+            
+            areasBajas.sort((a, b) => a.puntaje - b.puntaje);
+            areasAltas.sort((a, b) => b.puntaje - a.puntaje);
+            
+            // Determinar perfil
+            const promedio = puntajes.reduce((a, b) => a + b) / puntajes.length;
+            const bajas = puntajes.filter(p => p < 5).length;
+            
+            let perfilTexto = '';
+            if (promedio >= 8 && bajas <= 1) perfilTexto = 'ENERGÍA ÓPTIMA ⭐';
+            else if (promedio >= 7) perfilTexto = 'ENERGÍA ALTA 🔋';
+            else if (promedio >= 5) perfilTexto = 'ENERGÍA MEDIA ⚖️';
+            else if (promedio >= 3) perfilTexto = 'ENERGÍA BAJA 🔻';
+            else perfilTexto = 'ENERGÍA CRÍTICA 🚨';
+            
+            return `Eres José Luis Ogalde Henríquez, experto en Energía Vital. Analiza estos resultados:
+
+PUNTUACIÓN TOTAL: ${puntuacionFinal}/10
+PERFIL: ${perfilTexto}
+
+RESULTADOS:
+${fuentes.map((f, i) => `${f.nombre}: ${puntajes[i].toFixed(1)}/10`).join('\n')}
+
+PROPORCIONA UN ANÁLISIS DETALLADO QUE INCLUYA:
+1. Diagnóstico integral (2-3 párrafos)
+2. Áreas clave a trabajar ${areasBajas.length > 0 ? `(${areasBajas.slice(0,2).map(a => a.nombre).join(', ')})` : ''}
+3. Fortalezas principales ${areasAltas.length > 0 ? `(${areasAltas.slice(0,2).map(a => a.nombre).join(', ')})` : ''}
+4. Plan de acción semanal concreto
+5. Un consejo inmediato para hoy
+
+Formato: Español práctico, motivador, máximo 600 palabras. Usa emojis y estructura clara.`;
+        }
+
+        async function llamarGeminiAPI(prompt) {
+            // Modelos actuales de Gemini (2024) - SOLO esta función, no código duplicado
+            const modelos = [
+                'gemini-2.5-flash',     // Más reciente y rápido
+                'gemini-2.0-flash',     // Estable
+                'gemini-1.5-flash',     // Alternativa
+                'gemini-1.5-pro',       // Si tienes acceso
+                'gemini-1.0-pro'        // Último recurso
+            ];
+            
+            for (const modelo of modelos) {
+                try {
+                    console.log(`🔄 Probando modelo: ${modelo}`);
+                    
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${GEMINI_API_KEY}`;
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            contents: [{parts: [{text: prompt}]}],
+                            generationConfig: {
+                                temperature: 0.8,
+                                maxOutputTokens: 1500,
+                                topP: 0.9,
+                                topK: 40
+                            }
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log(`✅ Modelo ${modelo} funcionó`);
+                        
+                        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                            return data.candidates[0].content.parts[0].text;
+                        } else {
+                            throw new Error('Respuesta inesperada de Gemini API');
+                        }
+                    } else {
+                        const error = await response.text();
+                        console.log(`❌ Modelo ${modelo} falló: ${response.status}`);
+                        // Continuar con siguiente modelo
+                    }
+                } catch (error) {
+                    console.log(`⚠️ Error con ${modelo}:`, error.message);
+                }
+            }
+            
+            throw new Error('Ningún modelo de Gemini está disponible');
+        }
+
+        function mostrarAnalisisGemini(analisis) {
+            // Formatear la respuesta (mantener saltos de línea)
+            const textoFormateado = analisis
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+            
+            const html = `
+                <div class="resultado-ia">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: #ea4335;">
+                        <div style="width: 40px; height: 40px; background: #fee; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 1.2em;">🤖</span>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.3em;">Análisis por Google AI</h3>
+                            <small style="color: #9ca3af;">Generado con Gemini Pro</small>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="margin: 0; color: #374151; line-height: 1.6;">${textoFormateado}</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="copiarAnalisis()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                            📋 Copiar análisis
+                        </button>
+                        <button onclick="compartirAnalisis()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                            📱 Compartir
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb; text-align: center;">
+                        <small style="color: #9ca3af;">
+                            ✨ Análisis generado por IA | 
+                            <span id="fechaAnalisis" style="color: #6b7280;">${new Date().toLocaleDateString('es-ES')}</span>
+                        </small>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('resultadoIA').innerHTML = html;
+        }
+
+        function mostrarAnalisisDeRespaldo() {
+            const puntajes = calcularResultados();
+            
+            // Determinar perfil
+            const promedio = puntajes.reduce((a, b) => a + b) / puntajes.length;
+            const bajas = puntajes.filter(p => p < 5).length;
+            
+            let perfil = '';
+            if (promedio >= 8 && bajas <= 1) perfil = 'ENERGÍA ÓPTIMA ⭐';
+            else if (promedio >= 7) perfil = 'ENERGÍA ALTA 🔋';
+            else if (promedio >= 5) perfil = 'ENERGÍA MEDIA ⚖️';
+            else if (promedio >= 3) perfil = 'ENERGÍA BAJA 🔻';
+            else perfil = 'ENERGÍA CRÍTICA 🚨';
+            
+            // Encontrar áreas más bajas y más altas
+            let areasBajas = [];
+            let areasAltas = [];
+            
+            fuentes.forEach((fuente, i) => {
+                if (puntajes[i] <= 4) {
+                    areasBajas.push({nombre: fuente.nombre.split(' ')[1], puntaje: puntajes[i]});
+                }
+                if (puntajes[i] >= 8) {
+                    areasAltas.push({nombre: fuente.nombre.split(' ')[1], puntaje: puntajes[i]});
+                }
+            });
+            
+            // Ordenar de menor a mayor
+            areasBajas.sort((a, b) => a.puntaje - b.puntaje);
+            areasAltas.sort((a, b) => b.puntaje - a.puntaje);
+            
+            let analisis = `<div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin-bottom: 15px;">`;
+            analisis += `<h4 style="color: #0369a1; margin-top: 0;">📊 ${perfil}</h4>`;
+            
+            if (areasAltas.length > 0) {
+                analisis += `<p><strong>✅ Tus fortalezas:</strong><br>`;
+                areasAltas.slice(0, 3).forEach(area => {
+                    analisis += `• ${area.nombre} (${area.puntaje.toFixed(1)}/10)<br>`;
+                });
+                analisis += `</p>`;
+            }
+            
+            if (areasBajas.length > 0) {
+                analisis += `<p><strong>🎯 Áreas a trabajar:</strong><br>`;
+                areasBajas.slice(0, 3).forEach(area => {
+                    analisis += `• ${area.nombre} (${area.puntaje.toFixed(1)}/10)<br>`;
+                });
+                analisis += `</p>`;
+            }
+            
+            // Consejo específico
+            const consejos = {
+                'ENERGÍA ÓPTIMA ⭐': '¡Excelente! Comparte tus hábitos energéticos con alguien hoy.',
+                'ENERGÍA ALTA 🔋': 'Mantén tu momentum. Identifica una nueva área para crecer.',
+                'ENERGÍA MEDIA ⚖️': 'Enfócate en equilibrio. Elige una área baja para mejorar 1% cada día.',
+                'ENERGÍA BAJA 🔻': 'Prioriza autocuidado. Comienza con respiración consciente 5 min/día.',
+                'ENERGÍA CRÍTICA 🚨': 'Enfócate en lo esencial: sueño, alimentación, respiración. Pequeños pasos.'
+            };
+            
+            analisis += `<p><strong>💡 Acción para hoy:</strong><br>${consejos[perfil] || 'Toma 5 respiraciones profundas ahora mismo.'}</p>`;
+            analisis += `</div>`;
+            
+            document.getElementById('resultadoIA').innerHTML = analisis;
+        }
+
+        // ============================================
+        // FUNCIONES AUXILIARES
+        // ============================================
+
+        function copiarAnalisis() {
+            const texto = document.querySelector('#resultadoIA p')?.innerText || document.querySelector('#resultadoIA').innerText;
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('✅ Análisis copiado al portapapeles');
+            });
+        }
+
+        function compartirAnalisis() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mi Análisis de Energía Vital',
+                    text: 'Acabo de recibir mi análisis personalizado de energía vital con IA.',
+                    url: window.location.href
+                });
+            } else {
+                copiarAnalisis();
+                alert('📋 Enlace copiado. Compártelo donde quieras.');
+            }
+        }
+
+        function mostrarSeccionIA() {
+            document.getElementById('seccionIA').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('seccionIA').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 300);
+        }
+    </script>
+</body>
+</html>
