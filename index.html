@@ -91,7 +91,7 @@
                                        cursor: pointer; 
                                        flex: 1;
                                        min-width: 200px;">
-                            🚀 Groq (Mixtral 8x7b)
+                            🚀 Groq (Llama 3.1 8B)
                         </button>
                         
                         <button onclick="analizarConAnalisisAvanzado()" 
@@ -120,7 +120,8 @@
                         <div class="api-key-note">
                             • Sin API key: usarás análisis local<br>
                             • Con API key: obtendrás análisis más preciso con Groq<br>
-                            • Obtén tu key gratuita en: <a href="https://console.groq.com/keys" target="_blank" style="color: #4299e1;">console.groq.com/keys</a>
+                            • Obtén tu key gratuita en: <a href="https://console.groq.com/keys" target="_blank" style="color: #4299e1;">console.groq.com/keys</a><br>
+                            • Modelo actual: <strong>llama-3.1-8b-instant</strong> (560 tps)
                         </div>
                     </div>
                     
@@ -264,7 +265,7 @@
         }
 
         // ============================================
-        // GROQ (GRATIS - Mixtral 8x7b)
+        // GROQ (GRATIS - Llama 3.1 8B)
         // ============================================
 
         async function analizarConGroq() {
@@ -276,7 +277,7 @@
                 return;
             }
             
-            mostrarCarga('Conectando con Groq (Mixtral 8x7b)...');
+            mostrarCarga('Conectando con Groq (Llama 3.1 8B)...');
             
             try {
                 const puntajes = calcularResultados();
@@ -291,11 +292,11 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: 'mixtral-8x7b-32768',
+                        model: 'llama-3.1-8b-instant', // Modelo actualizado
                         messages: [
                             {
                                 role: 'system',
-                                content: 'Eres un experto en energía vital y bienestar integral. Proporciona análisis prácticos, motivadores y personalizados en español. Sé específico, ofrece consejos accionables y usa un tono positivo.'
+                                content: 'Eres un experto en energía vital y bienestar integral. Proporciona análisis prácticos, motivadores y personalizados en español. Sé específico, ofrece consejos accionables y usa un tono positivo. Formatea la respuesta con encabezados claros y emojis relevantes.'
                             },
                             {
                                 role: 'user',
@@ -303,7 +304,7 @@
                             }
                         ],
                         temperature: 0.7,
-                        max_tokens: 2000
+                        max_tokens: 1500
                     })
                 });
 
@@ -315,7 +316,7 @@
                 const data = await response.json();
                 const analisis = data.choices[0].message.content;
                 
-                mostrarResultadoIA(analisis, 'Groq (Mixtral 8x7b)');
+                mostrarResultadoIA(analisis, 'Groq (Llama 3.1 8B)');
                 
             } catch (error) {
                 console.error('Error Groq:', error);
@@ -360,30 +361,27 @@
             else if (promedio >= 3) perfil = 'ENERGÍA BAJA 🔻';
             else perfil = 'ENERGÍA CRÍTICA 🚨';
             
-            return `Como experto en energía vital, analiza estos resultados de forma detallada:
+            return `Analiza estos resultados de energía vital:
 
-Puntuación Total: ${puntuacion}/10
-Perfil Energético: ${perfil}
+PUNTUACIÓN TOTAL: ${puntuacion}/10
+PERFIL ENERGÉTICO: ${perfil}
 
-Resultados detallados por dimensión:
-${fuentes.map((f, i) => `${f.nombre}: ${puntajes[i].toFixed(1)}/10`).join('\n')}
+RESULTADOS DETALLADOS:
+${fuentes.map((f, i) => `• ${f.nombre}: ${puntajes[i].toFixed(1)}/10`).join('\n')}
 
-Por favor, proporciona un análisis completo que incluya:
+POR FAVOR PROPORCIONA UN ANÁLISIS COMPLETO QUE INCLUYA:
 
-1. **DIAGNÓSTICO GENERAL** - Interpretación holística del perfil energético
-2. **FORTALEZAS PRINCIPALES** - Identificar 2-3 áreas más fuertes y cómo potenciarlas
-3. **ÁREAS DE OPORTUNIDAD** - 2-3 áreas con mayor potencial de mejora con estrategias específicas
-4. **INTERCONEXIONES** - Cómo las diferentes áreas se afectan entre sí
-5. **PLAN DE ACCIÓN SEMANAL** - Rutina práctica de 7 días con acciones concretas
-6. **RITUAL MATUTINO** - Rutina de 5-10 minutos para empezar el día con energía
-7. **CONSEJO INMEDIATO** - Una acción simple para implementar hoy mismo
-8. **SEGUIMIENTO** - Cómo medir el progreso
+1. DIAGNÓSTICO GENERAL - Interpretación holística en 3-4 oraciones
+2. FORTALEZAS PRINCIPALES - 2-3 áreas más fuertes con consejos para potenciarlas
+3. ÁREAS DE MEJORA - 2-3 áreas con mayor potencial, con estrategias específicas
+4. PLAN DE ACCIÓN SEMANAL - 7 acciones concretas (una por día)
+5. RITUAL MATUTINO - Rutina de 5 minutos para empezar el día con energía
+6. CONSEJO INMEDIATO - Una acción simple para implementar hoy mismo
 
-Formato: Usa español claro, lenguaje motivador, emojis relevantes y estructura organizada con encabezados claros. Sé práctico y específico en las recomendaciones.`;
+FORMATO: Usa español claro, lenguaje motivador, emojis relevantes. Sé práctico y específico.`;
         }
 
         function generarAnalisisLocalCompleto(puntajes, puntuacion) {
-            // (Mantener la misma función de análisis local que tenías antes)
             const promedio = puntajes.reduce((a, b) => a + b) / puntajes.length;
             let perfil = '', color = '', emoji = '';
             
@@ -393,7 +391,6 @@ Formato: Usa español claro, lenguaje motivador, emojis relevantes y estructura 
             else if (promedio >= 3) { perfil = 'ENERGÍA BAJA'; color = '#ef4444'; emoji = '🔻'; }
             else { perfil = 'ENERGÍA CRÍTICA'; color = '#dc2626'; emoji = '🚨'; }
             
-            // ... (mantener el resto de la función igual) ...
             return `# 🔍 ANÁLISIS AVANZADO DE ENERGÍA VITAL
 
 ## 📊 **DIAGNÓSTICO INTEGRAL** ${emoji}
@@ -637,7 +634,7 @@ ${fuentes.filter((f, i) => puntajes[i] < 5).slice(0, 3).map(f => {
             console.log('✅ Diagnóstico de Energía Vital con IA Gratuita');
             console.log('📌 Instrucciones:');
             console.log('1. Usa el botón Groq con tu API key para análisis con IA real');
-            console.log('2. Obtén tu API key gratuita en: https://console.groq.com/keys');
+            console.log('2. Modelo: llama-3.1-8b-instant (560 tokens/segundo)');
             console.log('3. Sin API key, usarás el análisis local avanzado');
         });
     </script>
